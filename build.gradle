@@ -1,0 +1,142 @@
+ext {
+    // Sdk and tools
+    minSdkVersion = 21
+    targetSdkVersion = 30
+    compileSdkVersion = 30
+    buildToolsVersion = '30.0.2'
+
+    // App dependencies
+    androidXVersion = '1.1.0'
+    androidXNavigationVersion = '2.3.2'
+    androidXAppCompatVersion = '1.1.0'
+    androidXRecyclerViewVersion = '1.0.0'
+    googleFlexBoxVersion = '2.0.1'
+    androidXCardViewVersion = '1.0.0'
+    androidXFragmentVersion = '1.2.0-rc01'
+    otaliastudiosCameraVersion = '2.6.4'
+    androidXMultidexVersion = '2.0.1'
+    androidXExifInterfaceVersion = '1.0.0'
+    androidXBrowserVersion = '1.0.0'
+    androidXActivity = '1.1.0-rc02'
+    androidXTest = '1.1.1'
+    androidXTestExt = '1.0.0'
+    androidXTestEspresso = '3.1.1'
+    androidXCoreTesting = '2.1.0'
+    constraintLayoutVersion = '2.0.0-beta3'
+    viewPager2Version = '1.0.0-rc01'
+    emojiVersion = '1.1.0-rc01'
+
+    // https://github.com/material-components/material-components-android/releases
+    androidMaterialComponentsVersion = '1.1.0-beta02'
+
+    androidXWorkManager = '2.5.0'
+
+    guavaVersion = '23.0'
+    junitVersion = '4.12'
+    mockitoVersion = '3.1.0'
+    mockitoKotlinVersion = '2.2.0'
+    hamcrestVersion = '1.3'
+    runnerVersion = '1.0.0'
+    rulesVersion = '1.0.0'
+    espressoVersion = '3.0.2'
+    ankoVersion = '0.10.1'
+    javaxAnnotationVersion = '10.0-b28'
+    retrofitVersion = '2.3.0'
+    rxkotlinVersion = '2.4.0'
+    rxAndroidVersion = '2.1.1'
+    rxJavaVersion = '2.2.14'
+
+    googleFindBugsVersion = '3.0.2'
+    playServicesLocationVersion = '17.0.0'
+    playServicesPlacesVersion = '16.0.0'
+    androidLibPlaces = '2.3.0'
+    playServicesMapsVersion = '16.0.0'
+    playServicesSafetyNetVersion = '16.0.0'
+    playBilling = '3.0.0'
+    playServicesAuth = '16.0.1'
+
+    // https://github.com/facebook/stetho
+    facebookStethoVersion = '1.5.1'
+
+    firebaseJobDispatcherVersion = '0.8.4'
+    firebaseAnalyticsVersion = '17.4.3'
+    firebaseCrashlyticsVersion = '17.0.1'
+    socketIoVersion = '1.0.0'
+    circleImageViewVersion = '2.2.0'
+    fancyshowcase = '1.3.0'
+    glideVersion = "4.8.0"
+    gpuImageVersion = "2.0.4"
+    multiDexVersion = '1.0.3'
+    cloudinaryVersion = '1.22.0'
+    roomVersion = '2.2.1'
+
+    rxBindingVersion = '2.2.0'
+    rxPermissionVersion = '0.10.2'
+
+    ybqAndroidSpinKitVersion = '1.2.0'
+    androidPickerViewVersion = '3.2.7'
+    firebaseCoreVersion = '17.4.3'
+    firebaseMessagingVersion = '20.2.0'
+    firebaseDynamicLinksVersion = '19.0.0'
+    androidTagViewVersion = '1.3'
+    // Architecture Components dependencies
+    archLifecycleVersion = "1.1.1"
+    keyboardvisibilityeventLibVersion = '2.1.0'
+
+    okhttpVersion = '4.8.0'
+    crashlyticsVersion = '2.10.1'
+    photoviewVersion = '2.0.0'
+    imageViewZoomVersion = '1.1.0'
+    ktx_version = '1.0.2'
+    coroutinesVersion = '1.4.0'
+    androidXLifecycleVersion = '2.2.0'
+
+    safetySystemTechShakeDetector = '1.4'
+
+    // https://github.com/ArthurHub/Android-Image-Cropper
+    androidImageCropperVersion = '2.8.0'
+
+    koinVersion = '2.1.6'
+    mockKVersion = '1.9.3'
+
+    moshiVersion = '1.9.1'
+
+    appsFlyerVersion = '6.3.2'
+    installReferrerVersion = '2.2'
+
+    webRTCVersion = '1.0.32006'
+    // Range Seekbar
+    innovatticRangeSeekBar = '1.0.6'
+
+    emojiKeyboardVersion = '0.7.0'
+}
+
+// Top-level build file where you can add configuration options common to all sub-projects/modules.
+buildscript {
+    ext.kotlin_version = "1.4.0"
+    repositories {
+        google()
+        mavenCentral()
+    }
+    dependencies {
+        classpath "com.android.tools.build:gradle:4.2.2"
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        classpath "androidx.navigation:navigation-safe-args-gradle-plugin:2.3.0-beta01"
+        classpath "com.google.dagger:hilt-android-gradle-plugin:2.37"
+
+        // NOTE: Do not place your application dependencies here; they belong
+        // in the individual module build.gradle files
+    }
+}
+
+allprojects {
+    repositories {
+        google()
+        mavenCentral()
+        jcenter() // Warning: this repository is going to shut down soon
+    }
+}
+
+task clean(type: Delete) {
+    delete rootProject.buildDir
+}
