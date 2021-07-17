@@ -9,9 +9,9 @@ interface DetailsDao {
     @JvmSuppressWildcards
     suspend fun insertUserDetail(user: Details)
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     @JvmSuppressWildcards
-    suspend fun insertUserDetails(user: List<Details>)
+    suspend fun insertUserDetailIgnore(user: Details)
 
     @Query("SELECT * FROM details WHERE login_details=:login LIMIT 1")
     fun getUsersDetail(login:String): Details

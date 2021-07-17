@@ -12,9 +12,9 @@ import to.tawk.githubuserviewer.room.entities.UserDetails
  * network+db, or network-only
  */
 interface Repository {
-    fun getUsersPaginated(query: String?, pageSize: Int): Flow<PagingData<UserDetails>>
+    fun getUsersWithSearchFromDBOnly(query: String?, pageSize: Int): Flow<PagingData<UserDetails>>
 
-    fun getUsersPaginated(pageSize: Int): Flow<PagingData<User>>
+    fun getUsersFromDBAndNetwork(pageSize: Int): Flow<PagingData<User>>
 
     fun getUserDetails(username:String): Details
 }

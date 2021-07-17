@@ -20,10 +20,8 @@ import to.tawk.githubuserviewer.room.entities.UserDetails
  */
 class RepositoryImpl(val db: AppDatabase, val usersService: UsersService) : Repository {
 
-
-
     @OptIn(ExperimentalPagingApi::class)
-    override fun getUsersPaginated(search: String?, pageSize: Int): Flow<PagingData<UserDetails>> = Pager(
+    override fun getUsersWithSearchFromDBOnly(search: String?, pageSize: Int): Flow<PagingData<UserDetails>> = Pager(
         config = PagingConfig(pageSize)
     ) {
         // appending '%' so we can allow other characters to be before and after the query string
@@ -32,7 +30,7 @@ class RepositoryImpl(val db: AppDatabase, val usersService: UsersService) : Repo
     }.flow
 
     @OptIn(ExperimentalPagingApi::class)
-    override fun getUsersPaginated(pageSize: Int): Flow<PagingData<User>> = Pager(
+    override fun getUsersFromDBAndNetwork(pageSize: Int): Flow<PagingData<User>> = Pager(
         config = PagingConfig(pageSize),
         remoteMediator = PagingRemoteMediator(db, usersService)
     ) {

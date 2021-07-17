@@ -7,19 +7,25 @@ import android.os.Bundle
 import android.view.MenuItem
 import android.widget.ImageView
 import androidx.activity.viewModels
+import androidx.core.os.bundleOf
 import androidx.core.text.HtmlCompat
 import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.MultiTransformation
 import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.bumptech.glide.request.RequestOptions
 import com.bumptech.glide.request.target.ViewTarget
 import dagger.hilt.android.AndroidEntryPoint
+import jp.wasabeef.glide.transformations.CropCircleTransformation
+import jp.wasabeef.glide.transformations.gpu.InvertFilterTransformation
 import kotlinx.coroutines.launch
 import to.tawk.githubuserviewer.api.common.ApiResponse
 import to.tawk.githubuserviewer.api.common.Status
 import to.tawk.githubuserviewer.databinding.ActivityUserDetailsBinding
 import to.tawk.githubuserviewer.room.AppDatabase
 import to.tawk.githubuserviewer.room.entities.Details
+import to.tawk.githubuserviewer.room.entities.User
 import to.tawk.githubuserviewer.viewmodels.UserDetailsViewModel
 import javax.inject.Inject
 
@@ -32,13 +38,17 @@ class UserDetailsActivity : BaseActivity() {
     @Inject
     lateinit var appDatabase: AppDatabase
     var userDetails: Details? = null
+    var isInverted = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityUserDetailsBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        val username = intent.extras?.getString("user_item") ?: ""
+        val userItem = intent.extras?.getParcelable<User>("user_item")
+        isInverted = intent.extras?.getBoolean("is_inverted") ?: false
+        val username = userItem?.login ?: ""
+        val position = userItem?.position ?: 0
         supportActionBar?.title = "${username?.toUpperCase()}"
         supportActionBar?.show()
         supportActionBar?.setHomeButtonEnabled(true)
@@ -47,23 +57,23 @@ class UserDetailsActivity : BaseActivity() {
             handleResponse(it)
         })
 
-
         userDetails = appDatabase.userDetailsDao().getUsersDetail(login = username)
-        if (userDetails == null) {
+        if (userDetails?.html_url == null) {
             viewModel.getUserDetails(username = username)
         } else {
-            updateDetails(userDetails)
+            updateDetails(userDetails,isInverted)
         }
 
         binding.btnSave.setOnClickListener {
             lifecycleScope.launch {
                 userDetails?.note = binding.etNotesMultiline.text.toString()
                 userDetails?.let { appDatabase.userDetailsDao().updateUserDetail(it) }
-                setResult(Activity.RESULT_OK)
+                setResult(Activity.RESULT_OK, Intent().apply {
+                    bundleOf("position" to position)
+                })
                 finish()
             }
         }
-
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -87,7 +97,7 @@ class UserDetailsActivity : BaseActivity() {
                             appDatabase.userDetailsDao().insertUserDetail(user = item)
                         }
                         userDetails = item
-                        updateDetails(item)
+                        updateDetails(item,isInverted)
                     }
                 }
                 Status.ERROR -> {
@@ -105,7 +115,7 @@ class UserDetailsActivity : BaseActivity() {
         }
     }
 
-    private fun updateDetails(item: Details?) {
+    private fun updateDetails(item: Details?, isInverted: Boolean) {
         binding.tvFollowers.text = "followers: ${item?.followers ?: 0}"
         binding.tvFollowing.text = "following: ${item?.following ?: 0}"
         binding.etNotesMultiline.setText(item?.note ?: "")
@@ -132,7 +142,16 @@ class UserDetailsActivity : BaseActivity() {
 
         Glide.with(this)
             .load(item?.avatar_url)
-            .circleCrop()
+            .apply {
+                val multiTransformation = MultiTransformation (
+                    CropCircleTransformation(),
+                    InvertFilterTransformation()
+                )
+                if (isInverted)
+                    apply(RequestOptions.bitmapTransform(multiTransformation))
+                else
+                    apply(RequestOptions.bitmapTransform(CropCircleTransformation()))
+            }
             .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC)
             .into(binding.imgPic)
     }

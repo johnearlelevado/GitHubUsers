@@ -1,11 +1,13 @@
 package to.tawk.githubuserviewer.ui
 
 import android.content.Intent
+import android.content.res.Configuration
 import android.os.Bundle
 import android.text.TextUtils
 import androidx.activity.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.paging.LoadState
+import androidx.recyclerview.widget.RecyclerView
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.flow.collectLatest
@@ -13,11 +15,12 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.distinctUntilChangedBy
 import kotlinx.coroutines.flow.filter
 import to.tawk.githubuserviewer.databinding.ActivityMainBinding
-import to.tawk.githubuserviewer.paging.asMergedLoadStates
+import to.tawk.githubuserviewer.paging.MergedLoadStates.asMergedLoadStates
 import to.tawk.githubuserviewer.room.AppDatabase
 import to.tawk.githubuserviewer.ui.adapters.UserListLoadStateAdapter
 import to.tawk.githubuserviewer.ui.adapters.UserListAdapter
 import to.tawk.githubuserviewer.viewmodels.UsersViewModel
+import java.lang.Exception
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -44,6 +47,7 @@ class MainActivity : BaseActivity() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == UserDetailsActivity.REQUEST_CODE && resultCode == RESULT_OK) {
+            fetchUsers(null)
             adapter.notifyDataSetChanged()
         }
     }
@@ -51,6 +55,7 @@ class MainActivity : BaseActivity() {
     @InternalCoroutinesApi
     private fun initAdapter() {
         adapter = UserListAdapter(this, appDatabase.userDetailsDao())
+        binding.list.layoutManager?.onSaveInstanceState()
         binding.list.adapter = adapter.withLoadStateHeaderAndFooter(
             header = UserListLoadStateAdapter(adapter),
             footer = UserListLoadStateAdapter(adapter)
@@ -63,7 +68,7 @@ class MainActivity : BaseActivity() {
         }
 
         lifecycleScope.launchWhenCreated {
-            model.posts("").collectLatest {
+            model.getUsers("").collectLatest {
                 adapter.submitData(it)
             }
         }
@@ -93,28 +98,27 @@ class MainActivity : BaseActivity() {
         }
         binding.input.setOnQueryTextListener(object : androidx.appcompat.widget.SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
-                updatedSubredditFromInput(query)
+                fetchUsers(query)
                 return true
             }
 
             override fun onQueryTextChange(newText: String?): Boolean {
                 if (TextUtils.isEmpty(newText)) {
-                    updatedSubredditFromInput(null)
+                    fetchUsers(null)
                 }
                 return true
             }
         })
+        binding.input.setOnClickListener {
+
+        }
     }
 
-    private fun updatedSubredditFromInput(query:String?) {
+    private fun fetchUsers(query:String?) {
         lifecycleScope.launchWhenCreated {
-            model.posts(query).collectLatest {
+            model.getUsers(query).collectLatest {
                 adapter.submitData(it)
             }
         }
     }
-
-
-
-
 }

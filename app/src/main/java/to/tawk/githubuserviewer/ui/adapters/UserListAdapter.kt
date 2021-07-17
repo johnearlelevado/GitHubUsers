@@ -51,10 +51,10 @@ class UserListAdapter (private val context: Activity, private val userDetailsDao
 
             layoutUserBinding.root.setOnClickListener {
                 val i = Intent(itemView.context,UserDetailsActivity::class.java)
-                i.putExtra("user_item",item.login)
+                i.putExtra("user_item",item)
+                i.putExtra("is_inverted",isInverted)
                 context.startActivityForResult(i,UserDetailsActivity.REQUEST_CODE)
             }
-
             val details = detailsDao.getUsersDetail(item.login)
             layoutUserBinding.imgNote.isVisible = !details?.note.isNullOrEmpty() == true
         }

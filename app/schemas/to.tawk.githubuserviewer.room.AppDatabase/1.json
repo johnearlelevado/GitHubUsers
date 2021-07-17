@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "1d690e1d9ab3ceb69f29daaa74cba4e5",
+    "identityHash": "4eacbd48a463d8538acb8d2f3ca248e4",
     "entities": [
       {
         "tableName": "user",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`login` TEXT NOT NULL, `id` INTEGER NOT NULL, `node_id` TEXT NOT NULL, `avatar_url` TEXT NOT NULL, `gravatar_id` TEXT NOT NULL, `url` TEXT NOT NULL, `html_url` TEXT NOT NULL, PRIMARY KEY(`login`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`login` TEXT NOT NULL, `id` INTEGER NOT NULL, `node_id` TEXT NOT NULL, `avatar_url` TEXT NOT NULL, `gravatar_id` TEXT NOT NULL, `url` TEXT NOT NULL, `html_url` TEXT NOT NULL, `position` INTEGER NOT NULL, PRIMARY KEY(`login`))",
         "fields": [
           {
             "fieldPath": "login",
@@ -48,6 +48,12 @@
             "fieldPath": "html_url",
             "columnName": "html_url",
             "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "position",
+            "columnName": "position",
+            "affinity": "INTEGER",
             "notNull": true
           }
         ],
@@ -276,7 +282,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '1d690e1d9ab3ceb69f29daaa74cba4e5')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '4eacbd48a463d8538acb8d2f3ca248e4')"
     ]
   }
 }

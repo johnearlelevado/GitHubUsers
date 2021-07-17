@@ -33,4 +33,6 @@ data class User (
 	@SerializedName("html_url")
 	@ColumnInfo(name = "html_url")
 	val html_url : String,
+	@ColumnInfo(name = "position")
+	var position: Int
 ): Parcelable

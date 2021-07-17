@@ -12,6 +12,7 @@ import to.tawk.githubuserviewer.room.AppDatabase
 import to.tawk.githubuserviewer.room.dao.UserDao
 import to.tawk.githubuserviewer.room.entities.Details
 import to.tawk.githubuserviewer.room.entities.User
+import java.lang.Exception
 
 @OptIn(ExperimentalPagingApi::class)
 class PagingRemoteMediator(
@@ -22,8 +23,12 @@ class PagingRemoteMediator(
     private val userDao: UserDao = db.userDao()
 
     override suspend fun initialize(): InitializeAction {
-        // Require that remote REFRESH is launched on initial load and succeeds before launching
-        // remote PREPEND / APPEND.
+        try {
+            val hasDownloadedAlready = (db.userDao().getUsersNextIndex() ?: 1) > 1
+            return if (hasDownloadedAlready) InitializeAction.SKIP_INITIAL_REFRESH else InitializeAction.LAUNCH_INITIAL_REFRESH
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
         return InitializeAction.LAUNCH_INITIAL_REFRESH
     }
 
@@ -33,7 +38,6 @@ class PagingRemoteMediator(
     ): MediatorResult {
         Log.d("PageKeyedRemoteMediator","load()  load type = $loadType")
         try {
-            // Get the closest item from PagingState that we want to load data around.
             val loadKey = when (loadType) {
                 REFRESH -> STARTING_INDEX
                 PREPEND -> return MediatorResult.Success(endOfPaginationReached = true)
@@ -54,18 +58,26 @@ class PagingRemoteMediator(
                     REFRESH -> state.config.initialLoadSize
                     else -> state.config.pageSize
                 }
-            )
+            ).mapIndexed { index, user -> user.apply { position = index }   }
 
             if (loadType ==  REFRESH) {
-                userDao.deleteUsers()
+               userDao.deleteUsers()
             }
 
             db.withTransaction {
                 userDao.insertAllUsers(items)
+                items.forEach { u->
+                    db.userDetailsDao().insertUserDetailIgnore( Details(
+                        login = u.login,
+                        id = u.id,
+                        avatar_url = u.avatar_url
+                    ))
+                }
             }
 
             return MediatorResult.Success(endOfPaginationReached = items.isEmpty())
         } catch (e: Throwable) {
+            e.printStackTrace()
             return MediatorResult.Error(e)
         }
     }

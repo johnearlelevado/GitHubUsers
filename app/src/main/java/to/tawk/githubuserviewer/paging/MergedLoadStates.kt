@@ -15,25 +15,27 @@ import androidx.paging.PagingSource
 import androidx.paging.LoadType.REFRESH
 import androidx.paging.LoadType
 
-/**
- * Converts the raw [CombinedLoadStates] [Flow] from [PagingDataAdapter.loadStateFlow] into a new
- * [Flow] of [CombinedLoadStates] that track [CombinedLoadStates.mediator] states as they are
- * synchronously applied in the UI. Any [Loading] state triggered by [RemoteMediator] will only
- * transition back to [NotLoading] after the fetched items have been synchronously shown in UI by a
- * successful [PagingSource] load of type [REFRESH].
- *
- * Note: This class assumes that the [RemoteMediator] implementation always invalidates
- * [PagingSource] on a successful fetch, even if no data was modified (which Room does by default).
- * Using this class without this guarantee can cause [LoadState] to get indefinitely stuck as
- * [Loading] in cases where invalidation doesn't happen because the fetched network data represents
- * exactly what is already cached in DB.
- */
-@OptIn(ExperimentalCoroutinesApi::class)
-fun Flow<CombinedLoadStates>.asMergedLoadStates(): Flow<LoadStates> {
-    val syncRemoteState = LoadStatesMerger()
-    return scan(syncRemoteState.toLoadStates()) { _, combinedLoadStates ->
-        syncRemoteState.updateFromCombinedLoadStates(combinedLoadStates)
-        syncRemoteState.toLoadStates()
+object MergedLoadStates {
+    /**
+     * Converts the raw [CombinedLoadStates] [Flow] from [PagingDataAdapter.loadStateFlow] into a new
+     * [Flow] of [CombinedLoadStates] that track [CombinedLoadStates.mediator] states as they are
+     * synchronously applied in the UI. Any [Loading] state triggered by [RemoteMediator] will only
+     * transition back to [NotLoading] after the fetched items have been synchronously shown in UI by a
+     * successful [PagingSource] load of type [REFRESH].
+     *
+     * Note: This class assumes that the [RemoteMediator] implementation always invalidates
+     * [PagingSource] on a successful fetch, even if no data was modified (which Room does by default).
+     * Using this class without this guarantee can cause [LoadState] to get indefinitely stuck as
+     * [Loading] in cases where invalidation doesn't happen because the fetched network data represents
+     * exactly what is already cached in DB.
+     */
+    @OptIn(ExperimentalCoroutinesApi::class)
+    fun Flow<CombinedLoadStates>.asMergedLoadStates(): Flow<LoadStates> {
+        val syncRemoteState = LoadStatesMerger()
+        return scan(syncRemoteState.toLoadStates()) { _, combinedLoadStates ->
+            syncRemoteState.updateFromCombinedLoadStates(combinedLoadStates)
+            syncRemoteState.toLoadStates()
+        }
     }
 }
 

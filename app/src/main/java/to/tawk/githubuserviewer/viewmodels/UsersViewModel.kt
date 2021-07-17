@@ -9,7 +9,6 @@ import kotlinx.coroutines.flow.flattenMerge
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import to.tawk.githubuserviewer.repository.Repository
-import to.tawk.githubuserviewer.room.entities.User
 import javax.inject.Inject
 
 @HiltViewModel
@@ -18,11 +17,11 @@ open class UsersViewModel @Inject constructor(
 ) : BaseViewModel() {
 
     @OptIn(ExperimentalCoroutinesApi::class, FlowPreview::class)
-    fun posts(search:String?) = flowOf(
+    fun getUsers(search:String?) = flowOf(
         if (TextUtils.isEmpty(search))
-            repository.getUsersPaginated(30)
+            repository.getUsersFromDBAndNetwork(30)
         else
-            repository.getUsersPaginated(search,30).map { pagingData ->
+            repository.getUsersWithSearchFromDBOnly(search,30).map { pagingData ->
                 pagingData.map { userDetails -> userDetails.user }
             }
     ).flattenMerge(2)

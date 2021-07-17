@@ -7,7 +7,7 @@ import to.tawk.githubuserviewer.room.entities.UserDetails
 
 @Dao
 interface UserDao {
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     @JvmSuppressWildcards
     suspend fun insertAllUsers(list: List<User>)
 
@@ -19,12 +19,12 @@ interface UserDao {
 
     @Query("SELECT * FROM user INNER JOIN details " +
             "ON user.login = details.login_details " +
-            "WHERE (details.login_details LIKE :search OR user.login LIKE :search OR details.note_details LIKE :search) " +
+            "WHERE (user.login LIKE :search OR details.note_details LIKE :search) " +
             "ORDER BY id ASC")
     fun getUserDetailsSearchPaginated(search:String): PagingSource<Int, UserDetails>
 
     @Query("SELECT MAX(id) + 1 FROM user")
-    suspend fun getUsersNextIndex(): Int
+    suspend fun getUsersNextIndex(): Int?
 
     @Query("DELETE FROM user")
     suspend fun deleteUsers()
