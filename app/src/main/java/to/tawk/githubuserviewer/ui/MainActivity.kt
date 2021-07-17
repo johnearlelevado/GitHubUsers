@@ -1,13 +1,11 @@
 package to.tawk.githubuserviewer.ui
 
 import android.content.Intent
-import android.content.res.Configuration
 import android.os.Bundle
 import android.text.TextUtils
 import androidx.activity.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.paging.LoadState
-import androidx.recyclerview.widget.RecyclerView
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.flow.collectLatest
@@ -19,8 +17,8 @@ import to.tawk.githubuserviewer.paging.MergedLoadStates.asMergedLoadStates
 import to.tawk.githubuserviewer.room.AppDatabase
 import to.tawk.githubuserviewer.ui.adapters.UserListLoadStateAdapter
 import to.tawk.githubuserviewer.ui.adapters.UserListAdapter
+import to.tawk.githubuserviewer.util.NetworkChangeReceiver
 import to.tawk.githubuserviewer.viewmodels.UsersViewModel
-import java.lang.Exception
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -42,6 +40,15 @@ class MainActivity : BaseActivity() {
         initAdapter()
         initSwipeToRefresh()
         initSearch()
+        initNetworkConnectionStatusHandler()
+    }
+
+    private fun initNetworkConnectionStatusHandler() {
+        NetworkChangeReceiver(this) {
+            adapter.retry()
+        }.apply {
+            build(binding.tvNetworkStatusBar)
+        }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -109,9 +116,6 @@ class MainActivity : BaseActivity() {
                 return true
             }
         })
-        binding.input.setOnClickListener {
-
-        }
     }
 
     private fun fetchUsers(query:String?) {
