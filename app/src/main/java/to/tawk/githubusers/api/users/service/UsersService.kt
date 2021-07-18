@@ -1,6 +1,7 @@
 package to.tawk.githubusers.api.users.service
 
 import io.reactivex.Observable
+import io.reactivex.Single
 import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Path
@@ -18,6 +19,6 @@ interface UsersService {
     @GET("/users/{username}")
     fun getUserDetails(
         @Path("username") username: String
-    ): Observable<Response<Details>>
+    ): Single<Response<Details>>
 }
 

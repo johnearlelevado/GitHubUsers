@@ -1,13 +1,21 @@
 package to.tawk.githubusers.viewmodels
 
 import androidx.lifecycle.MutableLiveData
+import com.github.davidmoten.rx2.RetryWhen
 import dagger.hilt.android.lifecycle.HiltViewModel
+import io.reactivex.Flowable
+import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.retryWhen
 import to.tawk.githubusers.api.common.ApiResponse
 import to.tawk.githubusers.api.common.scheduler.SchedulerProvider
 import to.tawk.githubusers.api.users.service.UsersService
 import to.tawk.githubusers.repository.Repository
 import to.tawk.githubusers.room.entities.Details
+import java.net.UnknownHostException
+import java.util.concurrent.TimeUnit
+import java.util.function.BiFunction
 import javax.inject.Inject
 
 @HiltViewModel
@@ -23,11 +31,13 @@ open class UserDetailsViewModel @Inject constructor(
         compositeDisposable = CompositeDisposable()
     }
 
-
     fun getUserDetails(username:String){
         val service = usersService.getUserDetails(username = username)
         compositeDisposable.add(service
             .subscribeOn(schedulerProvider.io())
+            .retryWhen(RetryWhen.exponentialBackoff(
+                1000, TimeUnit.SECONDS, 4.0)
+                .build())
             .observeOn(schedulerProvider.ui())
             .doOnSubscribe {userDetailsLiveData.value = ApiResponse.loading() }
             .subscribe({ response ->
@@ -49,4 +59,14 @@ open class UserDetailsViewModel @Inject constructor(
 
     fun getAppDB() = repository.getAppDB()
 
+
+    fun <T> Flow<T>.retry(
+        retries: Long = Long.MAX_VALUE,
+        predicate: suspend (cause: Throwable) -> Boolean = { true }
+    ): Flow<T> {
+        require(retries > 0) { "Expected positive amount of retries, but had $retries" }
+        return retryWhen { cause, attempt -> attempt < retries && predicate(cause) }
+    }
+
 }
+
