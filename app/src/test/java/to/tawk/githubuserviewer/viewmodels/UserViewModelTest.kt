@@ -29,6 +29,7 @@ import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.mockito.junit.MockitoJUnitRunner
 import to.tawk.githubuserviewer.api.users.service.UsersService
+import to.tawk.githubuserviewer.mock.UserDetailsMock
 import to.tawk.githubuserviewer.paging.PagingRemoteMediator
 import to.tawk.githubuserviewer.room.AppDatabase
 import to.tawk.githubuserviewer.room.dao.DetailsDao
@@ -65,19 +66,9 @@ class UserViewModelTest {
     @Before
     fun setup() {
 
-        list = listOf(User(login = "login",
-            id = 0,
-            node_id = "fake-node-id",
-            avatar_url = "fake-avatar-url",
-            gravatar_id = "fake-gravatar-id",
-            url = "fake-url",
-            html_url = "fake-html-url",
-            position = 0
-        ))
+        list = listOf(UserDetailsMock.getUser())
 
-        schedulerProviderMock = mock<SchedulerProvider>(){
-
-        }
+        schedulerProviderMock = mock<SchedulerProvider>(){}
 
         Dispatchers.setMain(testDispatcher)
     }
@@ -105,10 +96,7 @@ class UserViewModelTest {
         val userDao = mock<UserDao> {
             on { runBlocking { deleteUsers() }  } doReturn Unit
         }
-        val detailsDao = mock<DetailsDao> {
-
-        }
-
+        val detailsDao = mock<DetailsDao> {}
         val appDatabase = mock<AppDatabase> {
             on { userDao()  } doReturn userDao
             on { userDetailsDao() } doReturn detailsDao
@@ -126,14 +114,13 @@ class UserViewModelTest {
         )
         val result = remoteMediator.load(LoadType.REFRESH, pagingState)
         assertThat ( result is RemoteMediator.MediatorResult.Success ).isTrue()
-        assertThat ( (result as RemoteMediator.MediatorResult.Success).endOfPaginationReached ).isTrue()
     }
 
 
     @Test
     fun `app database should not be null`() {
         setupSuccessResponse()
-        assertThat(viewModel.getAppDB()!=null).isTrue()
+        assertThat(viewModel.getAppDB()).isNotNull()
     }
 
     private val testDispatcher = TestCoroutineDispatcher()
@@ -146,16 +133,7 @@ class UserViewModelTest {
     @Test
     fun `test user fetching if successful`() = runBlockingTest(testDispatcher) {
 
-        val list = listOf(
-            User(login = "login",
-                id = 0,
-                node_id = "fake-node-id",
-                avatar_url = "fake-avatar-url",
-                gravatar_id = "fake-gravatar-id",
-                url = "fake-url",
-                html_url = "fake-html-url",
-                position = 0
-            ))
+        val list = listOf(UserDetailsMock.getUser())
 
         val usersService = mock<UsersService> {}
 
@@ -180,7 +158,7 @@ class UserViewModelTest {
         // submitData allows differ to receive data from PagingData, but suspends until
         // invalidation, so we must launch this in a separate job.
         val job = launch {
-            viewModel.getUsers("login").collectLatest { pagingData ->
+            viewModel.getUsers("fake-login").collectLatest { pagingData ->
                 differ.submitData(pagingData)
             }
         }
@@ -233,22 +211,7 @@ class UserViewModelTest {
             return object : PagingSource<Int, UserDetails>() {
                 override suspend fun load(params: LoadParams<Int>): LoadResult<Int, UserDetails> {
                     return LoadResult.Page(
-                        data = listOf(UserDetails(user = User(login = "login",
-                            id = 0,
-                            node_id = "fake-node-id",
-                            avatar_url = "fake-avatar-url",
-                            gravatar_id = "fake-gravatar-id",
-                            url = "fake-url",
-                            html_url = "fake-html-url",
-                            position = 0
-                        ) ,details = Details(login = "login",
-                            id = 0,
-                            node_id = "fake-node-id",
-                            avatar_url = "fake-avatar-url",
-                            gravatar_id = "fake-gravatar-id",
-                            url = "fake-url",
-                            html_url = "fake-html-url"
-                        ))),
+                        data = listOf(UserDetails(user = UserDetailsMock.getUser() ,details = UserDetailsMock.getDetails())),
                         prevKey = null,
                         nextKey = null,
                     )

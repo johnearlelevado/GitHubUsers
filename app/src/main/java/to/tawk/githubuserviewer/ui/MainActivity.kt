@@ -39,6 +39,7 @@ class MainActivity : BaseActivity() {
         initSwipeToRefresh()
         initSearch()
         initNetworkConnectionStatusHandler()
+
     }
 
     private fun initNetworkConnectionStatusHandler() {

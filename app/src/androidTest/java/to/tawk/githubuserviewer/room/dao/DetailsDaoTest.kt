@@ -10,6 +10,7 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import to.tawk.githubuserviewer.mock.UserDetailsMock
 import to.tawk.githubuserviewer.room.AppDatabase
 import to.tawk.githubuserviewer.room.entities.Details
 import java.io.IOException
@@ -36,14 +37,7 @@ class DetailsDaoTest {
     @Test
     @Throws(Exception::class)
     fun testInsertDetailsIfSuccessful()  {
-        val details = Details(login = "fake-login",
-            id = 0,
-            node_id = "fake-node-id",
-            avatar_url = "fake-avatar-url",
-            gravatar_id = "fake-gravatar-id",
-            url = "fake-url",
-            html_url = "fake-html-url"
-        )
+        val details = UserDetailsMock.getDetails()
         runBlocking {
             detailsDao.insertUserDetail(details)
         }
@@ -54,15 +48,7 @@ class DetailsDaoTest {
     @Test
     @Throws(Exception::class)
     fun testUpdateDetailsIfSuccessful()  {
-        val details = Details(login = "fake-login",
-            id = 0,
-            node_id = "fake-node-id",
-            avatar_url = "fake-avatar-url",
-            gravatar_id = "fake-gravatar-id",
-            url = "fake-url",
-            html_url = "fake-html-url",
-            note = ""
-        )
+        val details = UserDetailsMock.getDetails()
         runBlocking {
             detailsDao.insertUserDetail(details)
         }

@@ -121,7 +121,7 @@ class UserDetailsViewModelTest {
     @Test
     fun `app database should not be null`() {
         setupSuccessResponse()
-        assert(viewModel.getAppDB()!=null)
+        assertThat(viewModel.getAppDB()).isNotNull()
     }
 
 
