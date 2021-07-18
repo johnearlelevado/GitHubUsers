@@ -36,7 +36,6 @@ class PagingRemoteMediator(
         loadType: LoadType,
         state: PagingState<Int, User>
     ): MediatorResult {
-        Log.d("PageKeyedRemoteMediator","load()  load type = $loadType")
         try {
             val loadKey = when (loadType) {
                 REFRESH -> STARTING_INDEX
@@ -58,21 +57,20 @@ class PagingRemoteMediator(
                     REFRESH -> state.config.initialLoadSize
                     else -> state.config.pageSize
                 }
-            ).mapIndexed { index, user -> user.apply { position = index }   }
+            ).mapIndexed { index, user -> user?.apply { position = index }   }
+
 
             if (loadType ==  REFRESH) {
                userDao.deleteUsers()
             }
 
-            db.withTransaction {
-                userDao.insertAllUsers(items)
-                items.forEach { u->
-                    db.userDetailsDao().insertUserDetailIgnore( Details(
-                        login = u.login,
-                        id = u.id,
-                        avatar_url = u.avatar_url
-                    ))
-                }
+            userDao.insertAllUsers(items)
+            items.forEach { u->
+                db.userDetailsDao().insertUserDetailIgnore( Details(
+                    login = u.login,
+                    id = u.id,
+                    avatar_url = u.avatar_url
+                ))
             }
 
             return MediatorResult.Success(endOfPaginationReached = items.isEmpty())

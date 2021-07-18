@@ -39,4 +39,6 @@ class RepositoryImpl(val db: AppDatabase, val usersService: UsersService) : Repo
 
     override fun getUserDetails(username: String): Details
         = db.userDetailsDao().getUsersDetail(login = username)
+
+    override fun getAppDB(): AppDatabase = db
 }

@@ -18,13 +18,14 @@ import to.tawk.githubuserviewer.databinding.LayoutItemRowBinding
 import to.tawk.githubuserviewer.room.dao.DetailsDao
 import to.tawk.githubuserviewer.room.entities.User
 import to.tawk.githubuserviewer.ui.UserDetailsActivity
+import to.tawk.githubuserviewer.viewmodels.UsersViewModel
 
-class UserListAdapter (private val context: Activity, private val userDetailsDao: DetailsDao) : PagingDataAdapter<User, UserListAdapter.VHolder>(DIFF_CALLBACK) {
+class UserListAdapter (private val context: Activity, private val viewModel: UsersViewModel) : PagingDataAdapter<User, UserListAdapter.VHolder>(DIFF_CALLBACK) {
 
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VHolder {
         val binding = LayoutItemRowBinding.inflate(LayoutInflater.from(context), parent, false)
-        return VHolder(binding,userDetailsDao,context)
+        return VHolder(binding,viewModel,context)
     }
 
     override fun onBindViewHolder(viewHolder: VHolder, position: Int) {
@@ -33,7 +34,7 @@ class UserListAdapter (private val context: Activity, private val userDetailsDao
         viewHolder.bind(item, isInverted)
     }
 
-    class VHolder (private val layoutUserBinding: LayoutItemRowBinding,val detailsDao: DetailsDao, val context: Activity) : RecyclerView.ViewHolder(layoutUserBinding.root) {
+    class VHolder (private val layoutUserBinding: LayoutItemRowBinding,val viewModel: UsersViewModel, val context: Activity) : RecyclerView.ViewHolder(layoutUserBinding.root) {
         fun bind(item: User, isInverted: Boolean){
 
             layoutUserBinding.tvName.text = "${item.login}"
@@ -55,7 +56,7 @@ class UserListAdapter (private val context: Activity, private val userDetailsDao
                 i.putExtra("is_inverted",isInverted)
                 context.startActivityForResult(i,UserDetailsActivity.REQUEST_CODE)
             }
-            val details = detailsDao.getUsersDetail(item.login)
+            val details = viewModel.getAppDB().userDetailsDao().getUsersDetail(item.login)
             layoutUserBinding.imgNote.isVisible = !details?.note.isNullOrEmpty() == true
         }
     }

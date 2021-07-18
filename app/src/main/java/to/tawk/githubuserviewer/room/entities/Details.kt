@@ -68,7 +68,7 @@ data class Details (
 	val name : String? = null,
 	@SerializedName("company")
 	@ColumnInfo(name = "company_details")
-	val company : String? = null,
+    var company : String? = null,
 	@SerializedName("blog")
 	@ColumnInfo(name = "blog_details")
 	val blog : String? = null,

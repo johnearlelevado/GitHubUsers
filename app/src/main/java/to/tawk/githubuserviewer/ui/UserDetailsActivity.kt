@@ -2,10 +2,8 @@ package to.tawk.githubuserviewer.ui
 
 import android.app.Activity
 import android.content.Intent
-import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.view.MenuItem
-import android.widget.ImageView
 import androidx.activity.viewModels
 import androidx.core.os.bundleOf
 import androidx.core.text.HtmlCompat
@@ -15,7 +13,6 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.load.MultiTransformation
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.request.RequestOptions
-import com.bumptech.glide.request.target.ViewTarget
 import dagger.hilt.android.AndroidEntryPoint
 import jp.wasabeef.glide.transformations.CropCircleTransformation
 import jp.wasabeef.glide.transformations.gpu.InvertFilterTransformation
@@ -23,11 +20,9 @@ import kotlinx.coroutines.launch
 import to.tawk.githubuserviewer.api.common.ApiResponse
 import to.tawk.githubuserviewer.api.common.Status
 import to.tawk.githubuserviewer.databinding.ActivityUserDetailsBinding
-import to.tawk.githubuserviewer.room.AppDatabase
 import to.tawk.githubuserviewer.room.entities.Details
 import to.tawk.githubuserviewer.room.entities.User
 import to.tawk.githubuserviewer.viewmodels.UserDetailsViewModel
-import javax.inject.Inject
 
 @AndroidEntryPoint
 class UserDetailsActivity : BaseActivity() {
@@ -35,10 +30,8 @@ class UserDetailsActivity : BaseActivity() {
     private val viewModel: UserDetailsViewModel by viewModels()
     private lateinit var binding: ActivityUserDetailsBinding
 
-    @Inject
-    lateinit var appDatabase: AppDatabase
     var userDetails: Details? = null
-    var isInverted = false
+    private var isInverted = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -57,7 +50,7 @@ class UserDetailsActivity : BaseActivity() {
             handleResponse(it)
         })
 
-        userDetails = appDatabase.userDetailsDao().getUsersDetail(login = username)
+        userDetails = viewModel.getAppDB().userDetailsDao().getUsersDetail(login = username)
         if (userDetails?.html_url == null) {
             viewModel.getUserDetails(username = username)
         } else {
@@ -67,7 +60,7 @@ class UserDetailsActivity : BaseActivity() {
         binding.btnSave.setOnClickListener {
             lifecycleScope.launch {
                 userDetails?.note = binding.etNotesMultiline.text.toString()
-                userDetails?.let { appDatabase.userDetailsDao().updateUserDetail(it) }
+                userDetails?.let { viewModel.getAppDB().userDetailsDao().updateUserDetail(it) }
                 setResult(Activity.RESULT_OK, Intent().apply {
                     bundleOf("position" to position)
                 })
@@ -94,7 +87,10 @@ class UserDetailsActivity : BaseActivity() {
                     val item = response.mResponse
                     item?.let {
                         lifecycleScope.launch {
-                            appDatabase.userDetailsDao().insertUserDetail(user = item)
+                            viewModel
+                                .getAppDB()
+                                .userDetailsDao()
+                                .insertUserDetail(details = item)
                         }
                         userDetails = item
                         updateDetails(item,isInverted)

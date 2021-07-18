@@ -16,7 +16,7 @@ import android.view.View
 import androidx.appcompat.widget.AppCompatTextView
 
 
-class NetworkChangeReceiver(
+class NetworkStatusUtil(
     var context: Context,
     var onNetworkAliveListener: () -> Unit
 ) : Activity() {
@@ -32,9 +32,9 @@ class NetworkChangeReceiver(
                     if (state == NetworkInfo.State.CONNECTED) {
                         v.setBackgroundColor(Color.parseColor("#43a047"))
                         v.visibility = View.VISIBLE
-                        v.text = "ONLINE"
+                        v.text = "CONNECTED"
                         v.setTextColor(Color.WHITE)
-                        Handler().postDelayed({ v.visibility = View.GONE }, 5000)
+                        Handler().postDelayed({ v.visibility = View.GONE }, 3000)
                         onNetworkAliveListener()
                     } else {
                         v.setBackgroundColor(Color.parseColor("#455a64"))

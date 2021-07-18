@@ -2,6 +2,7 @@ package to.tawk.githubuserviewer.repository
 
 import androidx.paging.PagingData
 import kotlinx.coroutines.flow.Flow
+import to.tawk.githubuserviewer.room.AppDatabase
 import to.tawk.githubuserviewer.room.entities.User
 import to.tawk.githubuserviewer.room.entities.Details
 import to.tawk.githubuserviewer.room.entities.UserDetails
@@ -17,4 +18,6 @@ interface Repository {
     fun getUsersFromDBAndNetwork(pageSize: Int): Flow<PagingData<User>>
 
     fun getUserDetails(username:String): Details
+
+    fun getAppDB(): AppDatabase
 }

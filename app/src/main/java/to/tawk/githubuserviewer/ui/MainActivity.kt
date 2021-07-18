@@ -17,7 +17,7 @@ import to.tawk.githubuserviewer.paging.MergedLoadStates.asMergedLoadStates
 import to.tawk.githubuserviewer.room.AppDatabase
 import to.tawk.githubuserviewer.ui.adapters.UserListLoadStateAdapter
 import to.tawk.githubuserviewer.ui.adapters.UserListAdapter
-import to.tawk.githubuserviewer.util.NetworkChangeReceiver
+import to.tawk.githubuserviewer.util.NetworkStatusUtil
 import to.tawk.githubuserviewer.viewmodels.UsersViewModel
 import javax.inject.Inject
 
@@ -25,10 +25,8 @@ import javax.inject.Inject
 class MainActivity : BaseActivity() {
 
     lateinit var binding: ActivityMainBinding
-    private val model: UsersViewModel by viewModels()
+    private val viewModel: UsersViewModel by viewModels()
     lateinit var adapter : UserListAdapter
-    @Inject
-    lateinit var appDatabase: AppDatabase
 
     @InternalCoroutinesApi
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -44,7 +42,7 @@ class MainActivity : BaseActivity() {
     }
 
     private fun initNetworkConnectionStatusHandler() {
-        NetworkChangeReceiver(this) {
+        NetworkStatusUtil(this) {
             adapter.retry()
         }.apply {
             build(binding.tvNetworkStatusBar)
@@ -61,7 +59,7 @@ class MainActivity : BaseActivity() {
 
     @InternalCoroutinesApi
     private fun initAdapter() {
-        adapter = UserListAdapter(this, appDatabase.userDetailsDao())
+        adapter = UserListAdapter(this, viewModel)
         binding.list.layoutManager?.onSaveInstanceState()
         binding.list.adapter = adapter.withLoadStateHeaderAndFooter(
             header = UserListLoadStateAdapter(adapter),
@@ -75,7 +73,7 @@ class MainActivity : BaseActivity() {
         }
 
         lifecycleScope.launchWhenCreated {
-            model.getUsers("").collectLatest {
+            viewModel.getUsers("").collectLatest {
                 adapter.submitData(it)
             }
         }
@@ -120,7 +118,7 @@ class MainActivity : BaseActivity() {
 
     private fun fetchUsers(query:String?) {
         lifecycleScope.launchWhenCreated {
-            model.getUsers(query).collectLatest {
+            viewModel.getUsers(query).collectLatest {
                 adapter.submitData(it)
             }
         }

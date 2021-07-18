@@ -3,6 +3,7 @@ package to.tawk.githubuserviewer.viewmodels
 import androidx.lifecycle.MutableLiveData
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.reactivex.disposables.CompositeDisposable
+import org.junit.Assert
 import to.tawk.githubuserviewer.api.common.ApiResponse
 import to.tawk.githubuserviewer.api.common.scheduler.SchedulerProvider
 import to.tawk.githubuserviewer.api.users.service.UsersService
@@ -17,7 +18,7 @@ open class UserDetailsViewModel @Inject constructor(
     private val repository: Repository
 ) : BaseViewModel() {
 
-    val userDetailsLiveData = MutableLiveData<ApiResponse<Details >>()
+    val userDetailsLiveData = MutableLiveData<ApiResponse<Details>>()
 
     init {
         compositeDisposable = CompositeDisposable()
@@ -25,7 +26,8 @@ open class UserDetailsViewModel @Inject constructor(
 
 
     fun getUserDetails(username:String){
-        compositeDisposable.add(usersService.getUserDetails(username = username)
+        val service = usersService.getUserDetails(username = username)
+        compositeDisposable.add(service
             .subscribeOn(schedulerProvider.io())
             .observeOn(schedulerProvider.ui())
             .doOnSubscribe {userDetailsLiveData.value = ApiResponse.loading() }
@@ -45,5 +47,7 @@ open class UserDetailsViewModel @Inject constructor(
                 userDetailsLiveData.value = ApiResponse.fail(t)
             }))
     }
+
+    fun getAppDB() = repository.getAppDB()
 
 }

@@ -7,7 +7,7 @@ import to.tawk.githubuserviewer.room.entities.Details
 interface DetailsDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     @JvmSuppressWildcards
-    suspend fun insertUserDetail(user: Details)
+    suspend fun insertUserDetail(details: Details)
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     @JvmSuppressWildcards

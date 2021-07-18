@@ -20,7 +20,7 @@ open class RxImmediateSchedulerRule : TestRule {
         }
 
         override fun createWorker(): Scheduler.Worker {
-            return ExecutorScheduler.ExecutorWorker(Executor { it.run() })
+            return ExecutorScheduler.ExecutorWorker(Executor { it.run() }, true)
         }
     }
 
