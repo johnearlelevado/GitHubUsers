@@ -50,6 +50,7 @@ class PagingRemoteMediator(
                 }
             }
 
+            // fetch users from API when there are no items to display or end of page is reached
             val items = usersService.getUsers(
                 since = loadKey,
                 per_page = when (loadType) {

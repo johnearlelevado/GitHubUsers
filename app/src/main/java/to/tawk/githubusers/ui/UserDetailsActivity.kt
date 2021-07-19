@@ -17,6 +17,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import jp.wasabeef.glide.transformations.CropCircleTransformation
 import jp.wasabeef.glide.transformations.gpu.InvertFilterTransformation
 import kotlinx.coroutines.launch
+import to.tawk.githubusers.R
 import to.tawk.githubusers.api.common.ApiResponse
 import to.tawk.githubusers.api.common.Status
 import to.tawk.githubusers.databinding.ActivityUserDetailsBinding
@@ -83,7 +84,6 @@ class UserDetailsActivity : BaseActivity() {
         apiResponse?.let { response->
             when(response.mStatus){
                 Status.SUCCESS -> {
-                    //hideLoading()
                     val item = response.mResponse
                     item?.let {
                         lifecycleScope.launch {
@@ -97,44 +97,40 @@ class UserDetailsActivity : BaseActivity() {
                     }
                 }
                 Status.ERROR -> {
-                    //hideLoading()
-                    apiResponse?.mError?.let { showToast("Something went wrong...") }
+                    apiResponse?.mError?.let { showToast(getString(R.string.something_went_wrong)) }
                 }
                 Status.FAIL -> {
-                    //hideLoading()
                     apiResponse?.mThrowable?.message?.let { showToast(it) }
                 }
-                Status.LOADING -> {
-                    //showLoading(this)
-                }
+                Status.LOADING -> { }
             }
         }
     }
 
     private fun updateDetails(item: Details?, isInverted: Boolean) {
-        binding.tvFollowers.text = "followers: ${item?.followers ?: 0}"
-        binding.tvFollowing.text = "following: ${item?.following ?: 0}"
+        binding.tvFollowers.text = HtmlCompat.fromHtml(getString(R.string.followers,(item?.followers ?: 0)),HtmlCompat.FROM_HTML_MODE_LEGACY)
+        binding.tvFollowing.text = HtmlCompat.fromHtml(getString(R.string.following,(item?.following ?: 0)),HtmlCompat.FROM_HTML_MODE_LEGACY)
         binding.etNotesMultiline.setText(item?.note ?: "")
 
         val builder = StringBuilder()
 
         if (!item?.name.isNullOrEmpty()) {
-            builder.append("<b>Name:</b> ${item?.name}").append("<br>")
+            builder.append(getString(R.string.name,item?.name)).append("<br>")
         }
         if (!item?.company.isNullOrEmpty()) {
-            builder.append("<b>Company:</b> ${item?.company}").append("<br>")
+            builder.append(getString(R.string.company,item?.company)).append("<br>")
         }
         if (!item?.blog.isNullOrEmpty()) {
-            builder.append("<b>Blog:</b> ${item?.blog}").append("<br>")
+            builder.append(getString(R.string.blog,item?.blog)).append("<br>")
         }
         if (!item?.email.isNullOrEmpty()) {
-            builder.append("<b>Email:</b> ${item?.email}").append("<br>")
+            builder.append(getString(R.string.email,item?.email)).append("<br>")
         }
         if (!item?.location.isNullOrEmpty()) {
-            builder.append("<b>Location:</b> ${item?.location}").append("<br>")
+            builder.append(getString(R.string.location,item?.location)).append("<br>")
         }
 
-        binding.llUserDetails.setText(HtmlCompat.fromHtml(builder.toString(),HtmlCompat.FROM_HTML_MODE_LEGACY))
+        binding.llUserDetails.text = HtmlCompat.fromHtml(builder.toString(),HtmlCompat.FROM_HTML_MODE_LEGACY)
 
         Glide.with(this)
             .load(item?.avatar_url)

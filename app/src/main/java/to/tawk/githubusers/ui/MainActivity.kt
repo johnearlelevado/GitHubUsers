@@ -1,23 +1,35 @@
 package to.tawk.githubusers.ui
 
+import android.content.Context
 import android.content.Intent
+import android.content.res.Resources
 import android.os.Bundle
 import android.text.TextUtils
+import android.util.DisplayMetrics
+import android.view.View
+import android.view.ViewGroup
+import android.widget.FrameLayout
+import android.widget.LinearLayout
 import androidx.activity.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.paging.LoadState
 import dagger.hilt.android.AndroidEntryPoint
+import io.supercharge.shimmerlayout.ShimmerLayout
 import kotlinx.coroutines.InternalCoroutinesApi
-import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChangedBy
 import kotlinx.coroutines.flow.filter
+import to.tawk.githubusers.R
 import to.tawk.githubusers.databinding.ActivityMainBinding
 import to.tawk.githubusers.paging.MergedLoadStates.asMergedLoadStates
-import to.tawk.githubusers.ui.adapters.UserListLoadStateAdapter
 import to.tawk.githubusers.ui.adapters.UserListAdapter
+import to.tawk.githubusers.ui.adapters.UserListLoadStateAdapter
 import to.tawk.githubusers.util.NetworkStatusUtil
+import to.tawk.githubusers.util.SkeletonUtils
 import to.tawk.githubusers.viewmodels.UsersViewModel
+
 
 @AndroidEntryPoint
 class MainActivity : BaseActivity() {
@@ -48,6 +60,32 @@ class MainActivity : BaseActivity() {
         }
     }
 
+
+
+    private fun showSkeleton(show: Boolean) {
+
+        val skeletonLayout = findViewById<LinearLayout>(R.id.skeletonLayout)
+        val shimmer = findViewById<ShimmerLayout>(R.id.shimmerSkeleton)
+
+        if (show) {
+            skeletonLayout.removeAllViews()
+            val skeletonRows = SkeletonUtils.getSkeletonRowCount(this)
+            for (i in 0..skeletonRows) {
+                val rowLayout = layoutInflater.inflate(R.layout.skeleton_row_layout, null) as ViewGroup
+                skeletonLayout.addView(rowLayout)
+            }
+            shimmer.visibility = View.VISIBLE
+            shimmer.startShimmerAnimation()
+            skeletonLayout.visibility = View.VISIBLE
+            skeletonLayout.bringToFront()
+        } else {
+            shimmer.stopShimmerAnimation()
+            shimmer.visibility = View.GONE
+            skeletonLayout.removeAllViews()
+            skeletonLayout.visibility = View.GONE
+        }
+    }
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == UserDetailsActivity.REQUEST_CODE && resultCode == RESULT_OK) {
@@ -55,6 +93,9 @@ class MainActivity : BaseActivity() {
             adapter.notifyDataSetChanged()
         }
     }
+
+
+
 
     @InternalCoroutinesApi
     private fun initAdapter() {
@@ -72,7 +113,10 @@ class MainActivity : BaseActivity() {
         }
 
         lifecycleScope.launchWhenCreated {
+            showSkeleton(true)
             viewModel.getUsers("").collectLatest {
+                delay(500)
+                showSkeleton(false)
                 adapter.submitData(it)
             }
         }

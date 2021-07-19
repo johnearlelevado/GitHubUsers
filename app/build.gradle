@@ -185,4 +185,6 @@ dependencies {
     implementation 'jp.co.cyberagent.android:gpuimage:2.1.0'
 
     implementation 'com.github.davidmoten:rxjava2-extras:0.1.38'
+
+    implementation 'io.supercharge:shimmerlayout:2.1.0'
 }

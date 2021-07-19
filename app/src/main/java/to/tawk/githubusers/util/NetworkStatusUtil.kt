@@ -30,17 +30,10 @@ class NetworkStatusUtil(
                     val state = info!!.state
                     Log.d("Network status", "$info $state")
                     if (state == NetworkInfo.State.CONNECTED) {
-                        v.setBackgroundColor(Color.parseColor("#43a047"))
-                        v.visibility = View.VISIBLE
-                        v.text = "CONNECTED"
-                        v.setTextColor(Color.WHITE)
-                        Handler().postDelayed({ v.visibility = View.GONE }, 3000)
+                        v.visibility = View.GONE
                         onNetworkAliveListener()
                     } else {
-                        v.setBackgroundColor(Color.parseColor("#455a64"))
                         v.visibility = View.VISIBLE
-                        v.text = "NO CONNECTION"
-                        v.setTextColor(Color.WHITE)
                     }
                 }
             }

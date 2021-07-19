@@ -34,18 +34,29 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:text="@string/back_online"
+        android:text="@string/offline"
+        android:background="@color/gray2"
+        android:textColor="@color/white"
         android:gravity="center"
         android:padding="5dp" />
-    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout android:id="@+id/swipe_refresh"
+
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/list"
+        <include layout="@layout/skeleton_shimmer_layout"/>
+        <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+            android:id="@+id/swipe_refresh"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:scrollbars="vertical"
-            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"/>
-    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+            android:layout_height="match_parent">
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/list"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scrollbars="vertical"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"/>
+        </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+    </FrameLayout>
+
+
 </LinearLayout>
 

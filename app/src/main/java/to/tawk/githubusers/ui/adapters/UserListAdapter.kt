@@ -28,7 +28,7 @@ class UserListAdapter (private val context: Activity, private val viewModel: Use
 
     override fun onBindViewHolder(viewHolder: VHolder, position: Int) {
         val item = getItem(position)!!
-        val isInverted = (position + 1) % 4 == 0
+        val isInverted = (position + 1) % 4 == 0  // invert colors of image on every fourth item
         viewHolder.bind(item, isInverted)
     }
 
