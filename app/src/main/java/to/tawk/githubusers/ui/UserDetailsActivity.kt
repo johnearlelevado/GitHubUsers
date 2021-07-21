@@ -23,6 +23,7 @@ import to.tawk.githubusers.api.common.Status
 import to.tawk.githubusers.databinding.ActivityUserDetailsBinding
 import to.tawk.githubusers.room.entities.Details
 import to.tawk.githubusers.room.entities.User
+import to.tawk.githubusers.util.NetworkStatusUtil
 import to.tawk.githubusers.viewmodels.UserDetailsViewModel
 
 @AndroidEntryPoint
@@ -43,21 +44,17 @@ class UserDetailsActivity : BaseActivity() {
         isInverted = intent.extras?.getBoolean("is_inverted") ?: false
         val username = userItem?.login ?: ""
         val position = userItem?.position ?: 0
-        supportActionBar?.title = "${username?.toUpperCase()}"
-        supportActionBar?.show()
-        supportActionBar?.setHomeButtonEnabled(true)
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        initializeActionBar(username)
         viewModel.userDetailsLiveData.observe(this, Observer {
             handleResponse(it)
         })
-
         userDetails = viewModel.getAppDB().userDetailsDao().getUsersDetail(login = username)
-        if (userDetails?.html_url == null) {
-            viewModel.getUserDetails(username = username)
-        } else {
-            updateDetails(userDetails,isInverted)
-        }
+        getUserDetails(username)
+        initializeButton(position)
+        initializeNoNetworkHandler(username)
+    }
 
+    private fun initializeButton(position:Int){
         binding.btnSave.setOnClickListener {
             lifecycleScope.launch {
                 userDetails?.note = binding.etNotesMultiline.text.toString()
@@ -67,6 +64,29 @@ class UserDetailsActivity : BaseActivity() {
                 })
                 finish()
             }
+        }
+    }
+
+    private fun initializeActionBar(username: String) {
+        supportActionBar?.title = "${username?.toUpperCase()}"
+        supportActionBar?.show()
+        supportActionBar?.setHomeButtonEnabled(true)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+    }
+
+    private fun initializeNoNetworkHandler(username: String) {
+        NetworkStatusUtil(context = this) {
+            getUserDetails(username)
+        }.apply {
+            build(binding.tvNetworkStatusBar)
+        }
+    }
+
+    private fun getUserDetails(username: String) {
+        if (userDetails?.html_url == null) {
+            viewModel.getUserDetails(username = username)
+        } else {
+            updateDetails(userDetails, isInverted)
         }
     }
 
