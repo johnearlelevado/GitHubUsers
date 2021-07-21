@@ -1,5 +1,6 @@
 package to.tawk.githubusers.ui
 
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.res.Resources
@@ -10,6 +11,9 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.LinearLayout
+import androidx.activity.result.ActivityResult
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.paging.LoadState
@@ -45,11 +49,23 @@ class MainActivity : BaseActivity() {
         setContentView(binding.root)
         supportActionBar?.hide()
 
-        initAdapter()
+        val i = initUserDetailCallback()
+        initAdapter(i)
         initSwipeToRefresh()
         initSearch()
         initNetworkConnectionStatusHandler()
 
+    }
+
+    private fun initUserDetailCallback() : ActivityResultLauncher<Intent> {
+        val startForResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+                result: ActivityResult ->
+            if (result.resultCode == RESULT_OK) {
+                fetchUsers(null)
+                adapter.notifyDataSetChanged()
+            }
+        }
+        return startForResult
     }
 
     private fun initNetworkConnectionStatusHandler() {
@@ -86,20 +102,9 @@ class MainActivity : BaseActivity() {
         }
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == UserDetailsActivity.REQUEST_CODE && resultCode == RESULT_OK) {
-            fetchUsers(null)
-            adapter.notifyDataSetChanged()
-        }
-    }
-
-
-
-
     @InternalCoroutinesApi
-    private fun initAdapter() {
-        adapter = UserListAdapter(this, viewModel)
+    private fun initAdapter(launcher: ActivityResultLauncher<Intent>) {
+        adapter = UserListAdapter(this, viewModel,launcher)
         binding.list.layoutManager?.onSaveInstanceState()
         binding.list.adapter = adapter.withLoadStateHeaderAndFooter(
             header = UserListLoadStateAdapter(adapter),

@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Intent
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.activity.result.ActivityResultLauncher
 import androidx.core.view.isVisible
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
@@ -18,12 +19,15 @@ import to.tawk.githubusers.room.entities.User
 import to.tawk.githubusers.ui.UserDetailsActivity
 import to.tawk.githubusers.viewmodels.UsersViewModel
 
-class UserListAdapter (private val context: Activity, private val viewModel: UsersViewModel) : PagingDataAdapter<User, UserListAdapter.VHolder>(DIFF_CALLBACK) {
+class UserListAdapter (private val context: Activity,
+                       private val viewModel: UsersViewModel,
+                       private val launcher: ActivityResultLauncher<Intent>
+                       ) : PagingDataAdapter<User, UserListAdapter.VHolder>(DIFF_CALLBACK) {
 
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VHolder {
         val binding = LayoutItemRowBinding.inflate(LayoutInflater.from(context), parent, false)
-        return VHolder(binding,viewModel,context)
+        return VHolder(binding,viewModel,context,launcher)
     }
 
     override fun onBindViewHolder(viewHolder: VHolder, position: Int) {
@@ -32,7 +36,11 @@ class UserListAdapter (private val context: Activity, private val viewModel: Use
         viewHolder.bind(item, isInverted)
     }
 
-    class VHolder (private val layoutUserBinding: LayoutItemRowBinding,val viewModel: UsersViewModel, val context: Activity) : RecyclerView.ViewHolder(layoutUserBinding.root) {
+    class VHolder (private val layoutUserBinding: LayoutItemRowBinding,
+                   val viewModel: UsersViewModel,
+                   val context: Activity,
+                   val launcher: ActivityResultLauncher<Intent>
+                   ) : RecyclerView.ViewHolder(layoutUserBinding.root) {
         fun bind(item: User, isInverted: Boolean){
 
             layoutUserBinding.tvName.text = "${item.login}"
@@ -52,7 +60,7 @@ class UserListAdapter (private val context: Activity, private val viewModel: Use
                 val i = Intent(itemView.context,UserDetailsActivity::class.java)
                 i.putExtra("user_item",item)
                 i.putExtra("is_inverted",isInverted)
-                context.startActivityForResult(i,UserDetailsActivity.REQUEST_CODE)
+                launcher.launch(i)
             }
             val details = viewModel.getAppDB().userDetailsDao().getUsersDetail(item.login)
             layoutUserBinding.imgNote.isVisible = !details?.note.isNullOrEmpty() == true
