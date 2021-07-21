@@ -59,14 +59,5 @@ open class UserDetailsViewModel @Inject constructor(
 
     fun getAppDB() = repository.getAppDB()
 
-
-    fun <T> Flow<T>.retry(
-        retries: Long = Long.MAX_VALUE,
-        predicate: suspend (cause: Throwable) -> Boolean = { true }
-    ): Flow<T> {
-        require(retries > 0) { "Expected positive amount of retries, but had $retries" }
-        return retryWhen { cause, attempt -> attempt < retries && predicate(cause) }
-    }
-
 }
 

@@ -10,6 +10,7 @@ import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.mock
 import io.reactivex.Observable
+import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import okhttp3.MediaType
@@ -65,7 +66,7 @@ class UserDetailsViewModelTest {
     private fun setupSuccessResponse() {
         val response: Response<Details> = Response.success(details)
         val usersService = mock<UsersService> {
-            on { getUserDetails(username = "fake-login") } doReturn Observable.just(
+            on { getUserDetails(username = "fake-login") } doReturn Single.just(
                 response
             )
         }
@@ -83,7 +84,7 @@ class UserDetailsViewModelTest {
                 MediaType.parse("application/json"),
             "{}"))
         val usersService = mock<UsersService> {
-            on { getUserDetails(username = "fake-login") } doReturn Observable.just(
+            on { getUserDetails(username = "fake-login") } doReturn Single.just(
                 response
             )
         }
