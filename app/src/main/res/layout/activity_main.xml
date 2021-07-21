@@ -11,21 +11,21 @@
         android:id="@+id/input_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="15dp"
-        android:layout_marginStart="15dp"
-        android:layout_marginBottom="15dp"
-        android:layout_marginTop="15dp"
-        android:padding="10dp"
         android:background="@color/gray"
         >
         <androidx.appcompat.widget.SearchView
             android:id="@+id/input"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginEnd="15dp"
+            android:layout_marginStart="15dp"
+            android:layout_marginBottom="15dp"
+            android:layout_marginTop="15dp"
             android:hint="@string/search_hint"
             app:iconifiedByDefault="false"
             android:imeOptions="actionSearch"
             android:inputType="textNoSuggestions"
+            android:background="@color/white"
             app:queryBackground="@android:color/transparent"
             />
     </androidx.appcompat.widget.LinearLayoutCompat>

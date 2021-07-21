@@ -141,9 +141,7 @@ class MainActivity : BaseActivity() {
     }
 
     private fun initSearch() {
-        binding.inputLayout.setOnClickListener {
-            binding.input.requestFocus()
-        }
+        binding.input.requestFocus()
         binding.input.setOnQueryTextListener(object : androidx.appcompat.widget.SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 fetchUsers(query)
