@@ -25,7 +25,7 @@
             app:iconifiedByDefault="false"
             android:imeOptions="actionSearch"
             android:inputType="textNoSuggestions"
-            android:background="@color/white"
+            android:background="@drawable/rounded_corner_white"
             app:queryBackground="@android:color/transparent"
             />
     </androidx.appcompat.widget.LinearLayoutCompat>
@@ -44,7 +44,9 @@
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
+
         <include layout="@layout/skeleton_shimmer_layout"/>
+
         <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
             android:id="@+id/swipe_refresh"
             android:layout_width="match_parent"

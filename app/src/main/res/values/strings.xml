@@ -9,6 +9,7 @@
     <string name="name"><![CDATA[<b>Name:</b> %s]]></string>
     <string name="offline">Offline</string>
     <string name="retry">Retry</string>
+    <string name="save">save</string>
     <string name="search_hint">Search</string>
     <string name="something_went_wrong">Something went wrong...</string>
 </resources>

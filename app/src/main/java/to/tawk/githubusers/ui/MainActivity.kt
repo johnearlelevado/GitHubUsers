@@ -10,6 +10,7 @@ import androidx.activity.result.ActivityResult
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.lifecycle.lifecycleScope
 import androidx.paging.LoadState
 import dagger.hilt.android.AndroidEntryPoint
@@ -52,7 +53,6 @@ class MainActivity : BaseActivity() {
         initSwipeToRefresh()
         initSearch()
         initNetworkConnectionStatusHandler()
-
     }
 
     /**
