@@ -1,5 +1,6 @@
 package to.tawk.githubusers.viewmodels
 
+import android.os.Parcelable
 import androidx.paging.map
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -14,6 +15,9 @@ import javax.inject.Inject
 open class UsersViewModel @Inject constructor(
     val repository: Repository
 ) : BaseViewModel() {
+
+    var searchKeyword : String? = null
+    var recyclerViewState: Parcelable? = null
 
     /**
      * getUsers() gets it's data from 2 sources (db-only source and db-network source)

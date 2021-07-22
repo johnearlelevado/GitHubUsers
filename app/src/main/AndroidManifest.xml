@@ -10,8 +10,12 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.GithubUserViewer">
-        <activity android:name="to.tawk.githubusers.ui.UserDetailsActivity"></activity>
-        <activity android:name="to.tawk.githubusers.ui.MainActivity">
+        <activity android:name="to.tawk.githubusers.ui.UserDetailsActivity"
+            android:configChanges="orientation"
+            />
+        <activity android:name="to.tawk.githubusers.ui.MainActivity"
+            android:configChanges="orientation"
+            >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

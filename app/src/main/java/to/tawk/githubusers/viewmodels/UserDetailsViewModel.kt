@@ -26,6 +26,7 @@ open class UserDetailsViewModel @Inject constructor(
 ) : BaseViewModel() {
 
     val userDetailsLiveData = MutableLiveData<ApiResponse<Details>>()
+    var notes:String? = null
 
     init {
         compositeDisposable = CompositeDisposable()

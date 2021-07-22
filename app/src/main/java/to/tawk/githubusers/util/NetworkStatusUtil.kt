@@ -5,6 +5,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.content.res.Configuration
 import android.graphics.Color
 import android.net.ConnectivityManager
 import android.net.NetworkInfo
@@ -45,25 +46,9 @@ class NetworkStatusUtil(
         }
     }
 
-
-
     private fun registerNetworkBroadcastReceiver(context: Context) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N || Build.VERSION.SDK_INT >= Build.VERSION_CODES.M || Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             context.registerReceiver(br, IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION))
         }
-    }
-
-    private fun unregisterNetworkChanges(context: Context) {
-        try {
-            context.unregisterReceiver(br)
-        } catch (e: IllegalArgumentException) {
-            e.printStackTrace()
-        }
-    }
-
-    // cleans up the registered Broadcast receiver when the activity is destroyed
-    override fun onDestroy() {
-        super.onDestroy()
-        unregisterNetworkChanges(context)
     }
 }

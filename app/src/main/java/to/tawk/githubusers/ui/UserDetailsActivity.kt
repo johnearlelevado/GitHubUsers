@@ -31,6 +31,7 @@ class UserDetailsActivity : BaseActivity() {
 
     private val viewModel: UserDetailsViewModel by viewModels()
     private lateinit var binding: ActivityUserDetailsBinding
+    private lateinit var networkStatusUtil: NetworkStatusUtil
 
     var userDetails: Details? = null
     private var isInverted = false
@@ -85,7 +86,7 @@ class UserDetailsActivity : BaseActivity() {
      * retrieve data from the API when the network is available
      * */
     private fun initializeNoNetworkHandler(username: String) {
-        NetworkStatusUtil(context = this) {
+        networkStatusUtil = NetworkStatusUtil(context = this) {
             getUserDetails(username)
         }.apply {
             build(binding.tvNetworkStatusBar)
@@ -156,7 +157,10 @@ class UserDetailsActivity : BaseActivity() {
         // update the followers and following count
         binding.tvFollowers.text = HtmlCompat.fromHtml(getString(R.string.followers,(details?.followers ?: 0)),HtmlCompat.FROM_HTML_MODE_LEGACY)
         binding.tvFollowing.text = HtmlCompat.fromHtml(getString(R.string.following,(details?.following ?: 0)),HtmlCompat.FROM_HTML_MODE_LEGACY)
-        binding.etNotesMultiline.setText(details?.note ?: "")
+
+        // by order of priority, the changes in the notes before the orientation changes is checked first
+        // then, if null, check the note on the details object
+        binding.etNotesMultiline.setText(viewModel?.notes ?: details?.note ?: "")
 
         // compose the details
         val builder = StringBuilder()
@@ -196,5 +200,20 @@ class UserDetailsActivity : BaseActivity() {
             // cache the image to load faster and handle offline scenario
             .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC)
             .into(binding.imgPic)
+    }
+
+    /**
+     * Saving notes data in the viewModel when configuration changes.
+     * Another alternative is to save via
+     * @param outstate
+     * */
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        viewModel.notes = binding.etNotesMultiline.text.toString()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        unregisterReceiver(networkStatusUtil.br)
     }
 }

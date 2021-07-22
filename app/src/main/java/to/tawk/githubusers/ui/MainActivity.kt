@@ -14,6 +14,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.paging.LoadState
 import dagger.hilt.android.AndroidEntryPoint
 import io.supercharge.shimmerlayout.ShimmerLayout
+import kotlinx.android.synthetic.main.activity_main.view.*
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
@@ -33,12 +34,14 @@ import to.tawk.githubusers.viewmodels.UsersViewModel
 @AndroidEntryPoint
 class MainActivity : BaseActivity() {
 
-    lateinit var binding: ActivityMainBinding
+    private lateinit var binding: ActivityMainBinding
     private val viewModel: UsersViewModel by viewModels()
-    lateinit var adapter : UserListAdapter
+    private lateinit var adapter : UserListAdapter
+    private lateinit var networkStatusUtil: NetworkStatusUtil
 
     @InternalCoroutinesApi
     override fun onCreate(savedInstanceState: Bundle?) {
+
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -70,7 +73,7 @@ class MainActivity : BaseActivity() {
      * retrieve retry the API request when the network is available
      * */
     private fun initNetworkConnectionStatusHandler() {
-        NetworkStatusUtil(this) {
+        networkStatusUtil = NetworkStatusUtil(this) {
             adapter.retry()
         }.apply {
             build(binding.tvNetworkStatusBar)
@@ -106,8 +109,28 @@ class MainActivity : BaseActivity() {
         }
     }
 
+    /**
+     * Saving keyword and recyclerViewState data in the viewModel when configuration changes.
+     * Another alternative is to save via
+     * @param outstate
+     * */
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        viewModel.searchKeyword = binding.input.query.toString()
+        viewModel.recyclerViewState = binding.list.layoutManager?.onSaveInstanceState()
+    }
+
     @InternalCoroutinesApi
     private fun initAdapter(launcher: ActivityResultLauncher<Intent>) {
+
+        /**
+         * if recyclerViewState is not null, restore previous state of the
+         * recyclerview before the activity was destroyed
+         * */
+        if (viewModel.recyclerViewState != null){
+            binding.list.layoutManager?.onRestoreInstanceState(viewModel.recyclerViewState)
+        }
+
         adapter = UserListAdapter(this, viewModel,launcher)
         binding.list.layoutManager?.onSaveInstanceState()
         binding.list.adapter = adapter.withLoadStateHeaderAndFooter(
@@ -126,7 +149,7 @@ class MainActivity : BaseActivity() {
         lifecycleScope.launchWhenCreated {
             // show loading skeleton as placeholder while the fetching process is not yet finished
             showSkeleton(true)
-            viewModel.getUsers("").collectLatest {
+            viewModel.getUsers(viewModel.searchKeyword).collectLatest {
                 delay(500)
                 showSkeleton(false)
                 adapter.submitData(it)
@@ -146,6 +169,11 @@ class MainActivity : BaseActivity() {
                 // Scroll to top is synchronous with UI updates, even if remote load was triggered.
                 .collect { binding.list.scrollToPosition(0) }
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        unregisterReceiver(networkStatusUtil.br)
     }
 
     private fun initSwipeToRefresh() {
