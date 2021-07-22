@@ -52,6 +52,9 @@ class MainActivity : BaseActivity() {
 
     }
 
+    /**
+     * Setup activity callback to refresh list
+     * */
     private fun initUserDetailCallback(): ActivityResultLauncher<Intent> {
         return registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
             if (result.resultCode == RESULT_OK) {
@@ -61,6 +64,11 @@ class MainActivity : BaseActivity() {
         }
     }
 
+    /**
+     * Handle no network scenario.
+     * Show an 'offline' message when the network is not available and
+     * retrieve retry the API request when the network is available
+     * */
     private fun initNetworkConnectionStatusHandler() {
         NetworkStatusUtil(this) {
             adapter.retry()
@@ -70,7 +78,10 @@ class MainActivity : BaseActivity() {
     }
 
 
-
+    /**
+     * show the skeleton loading placeholder while loading data
+     * to the user list
+     * */
     private fun showSkeleton(show: Boolean) {
 
         val skeletonLayout = findViewById<LinearLayout>(R.id.skeletonLayout)
@@ -104,13 +115,16 @@ class MainActivity : BaseActivity() {
             footer = UserListLoadStateAdapter(adapter)
         )
 
+        // sync the SwipeRefreshLayout refresh status and the list loading status
         lifecycleScope.launchWhenCreated {
             adapter.loadStateFlow.collectLatest { loadStates ->
                 binding.swipeRefresh.isRefreshing = loadStates.mediator?.refresh is LoadState.Loading
             }
         }
 
+        // fetch initial data for the list from DB and/or Network
         lifecycleScope.launchWhenCreated {
+            // show loading skeleton as placeholder while the fetching process is not yet finished
             showSkeleton(true)
             viewModel.getUsers("").collectLatest {
                 delay(500)
@@ -138,6 +152,11 @@ class MainActivity : BaseActivity() {
         binding.swipeRefresh.setOnRefreshListener { adapter.refresh() }
     }
 
+    /**
+     * setup searchview to fetch users when a search keyword exists
+     * (filter users with a keyword based on username/login and notes) or
+     * the searchview has been emptied (show all users)
+     * */
     private fun initSearch() {
         binding.input.requestFocus()
         binding.input.setOnQueryTextListener(object : androidx.appcompat.widget.SearchView.OnQueryTextListener {
@@ -155,6 +174,7 @@ class MainActivity : BaseActivity() {
         })
     }
 
+    // fetch users from the viewmodel and populate the list
     private fun fetchUsers(query:String?) {
         lifecycleScope.launchWhenCreated {
             viewModel.getUsers(query).collectLatest {

@@ -23,6 +23,7 @@ class PagingRemoteMediator(
 
     override suspend fun initialize(): InitializeAction {
         try {
+            // check the next index from the DB to check if some data has been downloaded already to reduce calls to the REFRESH state
             val hasDownloadedAlready = (db.userDao().getUsersNextIndex() ?: 1) > 1
             return if (hasDownloadedAlready) InitializeAction.SKIP_INITIAL_REFRESH else InitializeAction.LAUNCH_INITIAL_REFRESH
         } catch (e: Exception) {
@@ -40,6 +41,7 @@ class PagingRemoteMediator(
                 REFRESH -> STARTING_INDEX
                 PREPEND -> return MediatorResult.Success(endOfPaginationReached = true)
                 APPEND -> {
+                    // the nextPageKey is computed as the largest user ID + 1
                     val nextPageKey = db.withTransaction {
                         userDao.getUsersNextIndex() ?: -1
                     }
@@ -60,6 +62,7 @@ class PagingRemoteMediator(
             ).mapIndexed { index, user -> user?.apply { position = index }   }
 
 
+            // delete all users when refreshing to get a clean slate before inserting new users
             if (loadType ==  REFRESH) {
                userDao.deleteUsers()
             }

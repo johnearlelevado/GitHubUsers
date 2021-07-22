@@ -3,6 +3,9 @@ package to.tawk.githubusers.mock
 import to.tawk.githubusers.room.entities.Details
 import to.tawk.githubusers.room.entities.User
 
+/**
+ * Mock objects for unit testing and integrated testing
+ * */
 object UserDetailsMock {
     fun getDetails() = Details(login = "fake-login",
         id = 0,

@@ -15,7 +15,11 @@ import android.util.Log
 import android.view.View
 import androidx.appcompat.widget.AppCompatTextView
 
-
+/**
+ * NetworkStatusUtil helps monitor changes in Network Status
+ * Updates the UI when offline/online
+ * Triggers a callback to the calling activity when Network status is active
+ * */
 class NetworkStatusUtil(
     var context: Context,
     var onNetworkAliveListener: () -> Unit
@@ -49,7 +53,7 @@ class NetworkStatusUtil(
         }
     }
 
-    protected fun unregisterNetworkChanges(context: Context) {
+    private fun unregisterNetworkChanges(context: Context) {
         try {
             context.unregisterReceiver(br)
         } catch (e: IllegalArgumentException) {
@@ -57,6 +61,7 @@ class NetworkStatusUtil(
         }
     }
 
+    // cleans up the registered Broadcast receiver when the activity is destroyed
     override fun onDestroy() {
         super.onDestroy()
         unregisterNetworkChanges(context)

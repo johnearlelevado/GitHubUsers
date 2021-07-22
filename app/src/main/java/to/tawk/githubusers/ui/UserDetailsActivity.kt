@@ -43,30 +43,35 @@ class UserDetailsActivity : BaseActivity() {
         val userItem = intent.extras?.getParcelable<User>("user_item")
         isInverted = intent.extras?.getBoolean("is_inverted") ?: false
         val username = userItem?.login ?: ""
-        val position = userItem?.position ?: 0
         initializeActionBar(username)
         viewModel.userDetailsLiveData.observe(this, Observer {
             handleResponse(it)
         })
         userDetails = viewModel.getAppDB().userDetailsDao().getUsersDetail(login = username)
         getUserDetails(username)
-        initializeButton(position)
+        initializeButton()
         initializeNoNetworkHandler(username)
     }
 
-    private fun initializeButton(position:Int){
+    /**
+     * set up the save button
+     * */
+    private fun initializeButton(){
         binding.btnSave.setOnClickListener {
             lifecycleScope.launch {
+                // save the note written in the db
                 userDetails?.note = binding.etNotesMultiline.text.toString()
                 userDetails?.let { viewModel.getAppDB().userDetailsDao().updateUserDetail(it) }
-                setResult(Activity.RESULT_OK, Intent().apply {
-                    bundleOf("position" to position)
-                })
+                // activate a refresh on the list when this activity is closed
+                setResult(Activity.RESULT_OK)
                 finish()
             }
         }
     }
 
+    /**
+     * set up the action bar
+     * */
     private fun initializeActionBar(username: String) {
         supportActionBar?.title = "${username?.toUpperCase()}"
         supportActionBar?.show()
@@ -74,6 +79,11 @@ class UserDetailsActivity : BaseActivity() {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
     }
 
+    /**
+     * Handle no network scenario.
+     * Show an 'offline' message when the network is not available and
+     * retrieve data from the API when the network is available
+     * */
     private fun initializeNoNetworkHandler(username: String) {
         NetworkStatusUtil(context = this) {
             getUserDetails(username)
@@ -82,6 +92,10 @@ class UserDetailsActivity : BaseActivity() {
         }
     }
 
+    /**
+     * Retrieves the user details from the db, otherwise,
+     * if the details are not yet available in the DB, it is fetched from the API and saved to DB
+     * */
     private fun getUserDetails(username: String) {
         if (userDetails?.html_url == null) {
             viewModel.getUserDetails(username = username)
@@ -100,12 +114,16 @@ class UserDetailsActivity : BaseActivity() {
         }
     }
 
+    /**
+     * Handles the different statuses from the API response
+     * */
     private fun handleResponse(apiResponse: ApiResponse<Details>?) {
         apiResponse?.let { response->
             when(response.mStatus){
                 Status.SUCCESS -> {
                     val item = response.mResponse
                     item?.let {
+                        // the details fetched from the API is saved in the DB
                         lifecycleScope.launch {
                             viewModel
                                 .getAppDB()
@@ -117,9 +135,11 @@ class UserDetailsActivity : BaseActivity() {
                     }
                 }
                 Status.ERROR -> {
+                    // show a toast message when there is an error from the API
                     apiResponse?.mError?.let { showToast(getString(R.string.something_went_wrong)) }
                 }
                 Status.FAIL -> {
+                    // show a toast message when there is a throwable error encountered
                     apiResponse?.mThrowable?.message?.let { showToast(it) }
                 }
                 Status.LOADING -> { }
@@ -127,33 +147,42 @@ class UserDetailsActivity : BaseActivity() {
         }
     }
 
-    private fun updateDetails(item: Details?, isInverted: Boolean) {
-        binding.tvFollowers.text = HtmlCompat.fromHtml(getString(R.string.followers,(item?.followers ?: 0)),HtmlCompat.FROM_HTML_MODE_LEGACY)
-        binding.tvFollowing.text = HtmlCompat.fromHtml(getString(R.string.following,(item?.following ?: 0)),HtmlCompat.FROM_HTML_MODE_LEGACY)
-        binding.etNotesMultiline.setText(item?.note ?: "")
+    /**
+     * composes the user's details from the Detail object
+     * and displays them in the UI
+     * */
+    private fun updateDetails(details: Details?, isInverted: Boolean) {
 
+        // update the followers and following count
+        binding.tvFollowers.text = HtmlCompat.fromHtml(getString(R.string.followers,(details?.followers ?: 0)),HtmlCompat.FROM_HTML_MODE_LEGACY)
+        binding.tvFollowing.text = HtmlCompat.fromHtml(getString(R.string.following,(details?.following ?: 0)),HtmlCompat.FROM_HTML_MODE_LEGACY)
+        binding.etNotesMultiline.setText(details?.note ?: "")
+
+        // compose the details
         val builder = StringBuilder()
 
-        if (!item?.name.isNullOrEmpty()) {
-            builder.append(getString(R.string.name,item?.name)).append("<br>")
+        if (!details?.name.isNullOrEmpty()) {
+            builder.append(getString(R.string.name,details?.name)).append("<br>")
         }
-        if (!item?.company.isNullOrEmpty()) {
-            builder.append(getString(R.string.company,item?.company)).append("<br>")
+        if (!details?.company.isNullOrEmpty()) {
+            builder.append(getString(R.string.company,details?.company)).append("<br>")
         }
-        if (!item?.blog.isNullOrEmpty()) {
-            builder.append(getString(R.string.blog,item?.blog)).append("<br>")
+        if (!details?.blog.isNullOrEmpty()) {
+            builder.append(getString(R.string.blog,details?.blog)).append("<br>")
         }
-        if (!item?.email.isNullOrEmpty()) {
-            builder.append(getString(R.string.email,item?.email)).append("<br>")
+        if (!details?.email.isNullOrEmpty()) {
+            builder.append(getString(R.string.email,details?.email)).append("<br>")
         }
-        if (!item?.location.isNullOrEmpty()) {
-            builder.append(getString(R.string.location,item?.location)).append("<br>")
+        if (!details?.location.isNullOrEmpty()) {
+            builder.append(getString(R.string.location,details?.location)).append("<br>")
         }
 
+        // show the composed HTML data to the textview
         binding.llUserDetails.text = HtmlCompat.fromHtml(builder.toString(),HtmlCompat.FROM_HTML_MODE_LEGACY)
 
+        // Transform and load the image fetched from the API
         Glide.with(this)
-            .load(item?.avatar_url)
+            .load(details?.avatar_url)
             .apply {
                 val multiTransformation = MultiTransformation (
                     CropCircleTransformation(),
@@ -164,11 +193,8 @@ class UserDetailsActivity : BaseActivity() {
                 else
                     apply(RequestOptions.bitmapTransform(CropCircleTransformation()))
             }
+            // cache the image to load faster and handle offline scenario
             .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC)
             .into(binding.imgPic)
-    }
-
-    companion object {
-        const val REQUEST_CODE = 100
     }
 }

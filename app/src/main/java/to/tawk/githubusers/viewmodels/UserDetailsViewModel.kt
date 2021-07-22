@@ -31,10 +31,15 @@ open class UserDetailsViewModel @Inject constructor(
         compositeDisposable = CompositeDisposable()
     }
 
+    /**
+     * getUserDetails() triggers the request to the API and funnels the data fetched
+     * to the liveData object
+     * **/
     fun getUserDetails(username:String){
         val service = usersService.getUserDetails(username = username)
         compositeDisposable.add(service
             .subscribeOn(schedulerProvider.io())
+                // Exponential Backoff to create delays with a factor of 4x every Retry starting from 1 sec
             .retryWhen(RetryWhen.exponentialBackoff(
                 1000, TimeUnit.SECONDS, 4.0)
                 .build())
@@ -57,6 +62,9 @@ open class UserDetailsViewModel @Inject constructor(
             }))
     }
 
+    /**
+     * gives access to the DB instance
+     * */
     fun getAppDB() = repository.getAppDB()
 
 }

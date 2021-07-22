@@ -20,6 +20,12 @@ import to.tawk.githubusers.room.entities.UserDetails
  */
 class RepositoryImpl(val db: AppDatabase, val usersService: UsersService) : Repository {
 
+    /**
+     * Fetches UserDetails from DB only
+     * Typically used when searching
+     * @param search is the keyword to be searched in User's login/username and Detail's notes
+     * @param pageSize is the number of items per page
+     * */
     @OptIn(ExperimentalPagingApi::class)
     override fun getUsersWithSearchFromDBOnly(search: String?, pageSize: Int): Flow<PagingData<UserDetails>> = Pager(
         config = PagingConfig(pageSize)
@@ -29,6 +35,11 @@ class RepositoryImpl(val db: AppDatabase, val usersService: UsersService) : Repo
         db.userDao().getUserDetailsSearchPaginated(dbQuery)
     }.flow
 
+    /**
+     * Fetches UserDetails from DB+Network
+     * Typically when initializing the list and when not searching
+     * @param pageSize is the number of items per page
+     * */
     @OptIn(ExperimentalPagingApi::class)
     override fun getUsersFromDBAndNetwork(pageSize: Int): Flow<PagingData<User>> = Pager(
         config = PagingConfig(pageSize),
@@ -37,6 +48,10 @@ class RepositoryImpl(val db: AppDatabase, val usersService: UsersService) : Repo
         db.userDao().getUsersPaginated()
     }.flow
 
+    /**
+     * Fetches the Detail based on the given
+     * @param username
+     * */
     override fun getUserDetails(username: String): Details
         = db.userDetailsDao().getUsersDetail(login = username)
 

@@ -15,6 +15,10 @@ open class UsersViewModel @Inject constructor(
     val repository: Repository
 ) : BaseViewModel() {
 
+    /**
+     * getUsers() gets it's data from 2 sources (db-only source and db-network source)
+     * when searching, only the db-only source is used as opposed to db-network source when it's not
+     * */
     @OptIn(ExperimentalCoroutinesApi::class, FlowPreview::class)
     fun getUsers(search:String?) = flowOf(
         if (search.isNullOrEmpty())
