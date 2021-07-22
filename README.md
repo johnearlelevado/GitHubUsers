@@ -18,6 +18,8 @@ views.
   - ViewModel
   - LiveData
   - RxJava
+  - Paging3
+  - Room
 
 ### Testing
   - ViewModel Test (Unit tests)
