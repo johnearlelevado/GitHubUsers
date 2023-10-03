@@ -15,7 +15,7 @@
   - ViewModel Test (Unit tests)
   - Database Test (Integration tests)
 
-### Bonus Features:
+### Other Features:
 
 1. Empty views such as list items (while data is still loading) have Loading
 Shimmer aka Skeletons ~
