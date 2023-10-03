@@ -1,14 +1,14 @@
 # GitHubUsers
 
-### Bonus Requirements done:
+### Bonus Features:
 
-1. Empty views such as list items (while data is still loading) should have Loading
+1. Empty views such as list items (while data is still loading) have Loading
 Shimmer aka Skeletons ~
 https://miro.medium.com/max/4000/0*s7uxK77a0FY43NLe.png resembling final
 views.
-2. Exponential backoff must be used when trying to reload the data.
-3. MVVM pattern should be used.
-5. The app has to support dark mode.
+2. Exponential backoff used when trying to reload the data.
+3. MVVM pattern is used.
+5. The app supports dark mode.
 
 ### Tech stack
   - Retrofit2
